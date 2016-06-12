@@ -1,0 +1,14 @@
+Create api
+
+numpy arrays/matrix
+
+board class
+  - moves
+  - getState()
+
+Game Class
+  - play( player, moves )
+  - getVirtualBoard()
+  - play()
+  - addPlayer()
+  - validateMove

@@ -1,7 +1,7 @@
-import pygame
+# import pygame
 import numpy as np
 # import menu
-import hoverable
+# import hoverable
 
 from termcolor import colored
 from colorama import Fore, Back, Style
@@ -75,17 +75,18 @@ class Board(object):
             false if invalid move - doesn't update board
         """
         board = self.board if type == 'live' else self.virtualBoard
-        print( "TYPE", type )
         result = self.isValidMove(board, tile, row, col)
         if result != False:
-            if board == 'live' :
+            if type == 'live' :
                 self.nextTurn = self.BLACK if self.nextTurn == self.BLACK else self.WHITE
             else:
                 self.virtualNextTurn = self.BLACK if self.virtualNextTurn == self.BLACK else self.WHITE
 
             board[row][col] = tile
-            # for row in result:
-            #     board[ row[0] ][ row[1] ] = tile
+            for row in result:
+                board[ row[0] ][ row[1] ] = tile
+            if ( board == 'live'):
+                self.syncVirtualBoard()
 
             return True
         else:
@@ -178,13 +179,10 @@ if __name__ == "__main__":
     board = Board()
     print("================INIT================")
     board.printBoard( 'live' )
-    # print("Is valid[3,4]? ", board.isValidMove(None, 1, 3,4))
-    # print("Is valid[2,4]? ", board.isValidMove(None, 1, 2,4))
-    # print("Is valid[1,4]? ", board.isValidMove(None, -1, 1,4))
-    # print("Is valid[0,4]? ", board.isValidMove(None, 1, 0,4))
-    #board.updateBoard( board.virtualBoard, board.BLACK, 2,4 )
-    board.updateBoard( 'live', board.BLACK, 2,4 )
     print("================VIRTUAL================")
-    board.printBoard( "virtual" )
+    board.updateBoard( 'vitrual', board.BLACK, 4,2 )
+    board.printBoard("virtual")
+    print("IS VALID MOVE[4,4]?", board.updateBoard('virtual', board.BLACK, 4,4 ) )
     print("================LIVE================")
+    board.updateBoard( 'live', board.BLACK, 2,4 )
     board.printBoard( "live" )

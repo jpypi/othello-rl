@@ -1,12 +1,9 @@
-# import pygame
+import sys
 import numpy as np
-# import menu
-# import hoverable
-
-from termcolor import colored
 from colorama import Fore, Back, Style
 from colorama import init
 init(autoreset=True)
+
 
 def getRow(row):
     ret = ""
@@ -14,13 +11,15 @@ def getRow(row):
         ret += getItem(i)
     return ret
 
+
 def getItem(item):
     if item == 1 :
         return Fore.WHITE + "|" + Fore.BLACK + "O"
-    elif  item == 0 :
+    elif item == 0 :
         return Fore.WHITE + "| "
-    else :
+    else:
         return Fore.WHITE + "|" + Fore.WHITE + "O"
+
 
 class Board(object):
     #player colors
@@ -30,13 +29,14 @@ class Board(object):
     def __init__(self):
         self.board = np.array([ [0]*8 ] * 8, dtype=int)
         self.newGame()
-        return
 
     def newGame(self):
         """
         Load board with init conditions
         And sync virtual board
         """
+        self.remaining_moves = 0
+
         self.board[3][3] = 1
         self.board[4][4] = 1
         self.board[4][3] = -1
@@ -45,17 +45,16 @@ class Board(object):
         self.nextTurn = self.BLACK
         self.syncVirtualBoard()
 
-        return
-
     def syncVirtualBoard(self):
         """
         Syncronize virtual and current board
         """
         self.virtualBoard = np.copy(self.board)
-        self.virtualNextTurn = self.nextTurn
-        return
 
-    def getBoard(self):
+    def getRemainingMoves(self):
+        return self.remaining_moves
+
+    def getState(self):
         return self.board
 
     def updateBoard(self, type, tile, row, col):
@@ -77,15 +76,10 @@ class Board(object):
         board = self.board if type == 'live' else self.virtualBoard
         result = self.isValidMove(board, tile, row, col)
         if result != False:
-            if type == 'live' :
-                self.nextTurn = self.BLACK if self.nextTurn == self.BLACK else self.WHITE
-            else:
-                self.virtualNextTurn = self.BLACK if self.virtualNextTurn == self.BLACK else self.WHITE
-
             board[row][col] = tile
             for row in result:
                 board[ row[0] ][ row[1] ] = tile
-            if ( board == 'live'):
+            if type == 'live':
                 self.syncVirtualBoard()
 
             return True
@@ -100,19 +94,11 @@ class Board(object):
         """
         board = self.board if type == 'live' else self.virtualBoard
 
-        print(Back.GREEN +              "\t      BOARD      ")
-        print(Back.GREEN + Fore.WHITE + "\t |0|1|2|3|4|5|6|7")
-        print(Back.GREEN + Fore.WHITE + "\t0" + getRow(board[0]))
-        print(Back.GREEN + Fore.WHITE + "\t1" + getRow(board[1]))
-        print(Back.GREEN + Fore.WHITE + "\t2" + getRow(board[2]))
-        print(Back.GREEN + Fore.WHITE + "\t3" + getRow(board[3]))
-        print(Back.GREEN + Fore.WHITE + "\t4" + getRow(board[4]))
-        print(Back.GREEN + Fore.WHITE + "\t5" + getRow(board[5]))
-        print(Back.GREEN + Fore.WHITE + "\t6" + getRow(board[6]))
-        print(Back.GREEN + Fore.WHITE + "\t7" + getRow(board[7]))
-        print(Style.RESET_ALL)
-
-        return
+        print("\t" + Back.GREEN +              "      BOARD      ")
+        print("\t" + Back.GREEN + Fore.WHITE + " |0|1|2|3|4|5|6|7")
+        for i in range(8):
+            print("\t" + Back.GREEN + Fore.WHITE + "{}{}".format(i, getRow(board[i])))
+            sys.stdout.write(Style.RESET_ALL)
 
     def isOnBoard(self, x, y):
         """
@@ -129,7 +115,8 @@ class Board(object):
         @param int xstart
         @param int ystart
         Returns False if the player's move on space xstart, ystart is invalid.
-        If it is a valid move, returns a list of spaces that would become the player's if they made a move here.
+        If it is a valid move, returns a list of spaces that would become the
+        player's if they made a move here.
         """
         board = self.board if type == 'live' else self.virtualBoard
 
@@ -156,12 +143,15 @@ class Board(object):
                 while board[x][y] == otherTile:
                     x += xdirection
                     y += ydirection
-                    if not self.isOnBoard(x, y): # break out of while loop, then continue in for loop
+                    if not self.isOnBoard(x, y):
+                        # break out of while loop, then continue in for loop
                         break
                 if not self.isOnBoard(x, y):
                     continue
                 if board[x][y] == tile:
-                    # There are pieces to flip over. Go in the reverse direction until we reach the original space, noting all the tiles along the way.
+                    # There are pieces to flip over. Go in the reverse direction
+                    # until we reach the original space, noting all the tiles
+                    # along the way.
                     while True:
                         x -= xdirection
                         y -= ydirection
@@ -169,20 +159,24 @@ class Board(object):
                             break
                         tilesToFlip.append([x, y])
 
-        board[xstart][ystart] = 0 # restore the empty space
-        if len(tilesToFlip) == 0: # If no tiles were flipped, this is not a valid move.
+        # restore the empty space
+        board[xstart][ystart] = 0
+
+        # If no tiles were flipped, this is not a valid move.
+        if len(tilesToFlip) == 0:
             return False
         else:
             return tilesToFlip
 
+
 if __name__ == "__main__":
     board = Board()
     print("================INIT================")
-    board.printBoard( 'live' )
+    board.printBoard("live")
     print("================VIRTUAL================")
-    board.updateBoard( 'vitrual', board.BLACK, 4,2 )
+    board.updateBoard("vitrual", board.BLACK, 4, 2)
     board.printBoard("virtual")
-    print("IS VALID MOVE[4,4]?", board.updateBoard('virtual', board.BLACK, 4,4 ) )
+    print("IS VALID MOVE[4,4]?", board.updateBoard("virtual", board.BLACK, 4, 4))
     print("================LIVE================")
-    board.updateBoard( 'live', board.BLACK, 2,4 )
-    board.printBoard( "live" )
+    board.updateBoard("live", board.BLACK, 2, 4)
+    board.printBoard("live")

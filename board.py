@@ -35,15 +35,17 @@ class Board(object):
         Load board with init conditions
         And sync virtual board
         """
-        self.remaining_moves = 0
-
         self.board[3][3] = 1
         self.board[4][4] = 1
         self.board[4][3] = -1
         self.board[3][4] = -1
 
-        self.nextTurn = self.BLACK
+        self.remaining_moves = 8*8 - 4
+
         self.syncVirtualBoard()
+
+    def getRemainingMoves(self):
+        return self.remaining_moves
 
     def syncVirtualBoard(self):
         """
@@ -82,6 +84,7 @@ class Board(object):
             if type == 'live':
                 self.syncVirtualBoard()
 
+            self.remaining_moves -= 1
             return True
         else:
             return False

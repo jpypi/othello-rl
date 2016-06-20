@@ -19,7 +19,7 @@ class RLPlayer:
         self.play_history = []
         self.wins = 0
 
-    def play(self, place_func, board_state, me):
+    def play(self, place_func, board_state, me, log_history = True):
         # Transform all of "this player's" tokens to 1s and the other player's
         # to -1s
         input_state = np.apply_along_axis(lambda x: (x==me and 1) or (x!=0 and -1),
@@ -59,7 +59,9 @@ class RLPlayer:
             if not made_move and not positions:
                 return False
 
-        self.play_history.append((np.copy(input_state), pos[0]*8 + pos[1]))
+        if log_history:
+            self.play_history.append((np.copy(input_state), pos[0]*8 + pos[1]))
+
         return True
 
     def updateWeights(self, final_score):

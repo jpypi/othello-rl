@@ -12,8 +12,7 @@ class Game:
         self.players.append(player)
 
     def getScore(self):
-        # TODO: Implement
-        return 0
+        return self.board.getScore()
 
     def run(self):
         while self.board.getRemainingMoves() > 0:
@@ -21,7 +20,8 @@ class Game:
                 # Pass the player a function it can use to make a move
                 # i*2-1 rescales index as if it were an interval
                 # (0, 1) -> (-1, 1)
-                player.play(lambda r,c: self.board.updateBoard("live",
-                                                               i*2-1, r, c),
-                            self.board.getState())
-                self.board.printBoard("live")
+                did_move = player.play(lambda r,c: self.board.updateBoard(i*2-1, r, c),
+                                   self.board.getState(), i*2-1)
+                self.board.printBoard()
+                if not did_move:
+                    print("Someone is stuck")

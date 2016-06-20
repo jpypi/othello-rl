@@ -22,7 +22,7 @@ class RLPlayer:
     def play(self, place_func, board_state, me, log_history = True):
         # Transform all of "this player's" tokens to 1s and the other player's
         # to -1s
-        input_state = np.apply_along_axis(lambda x: (x==me and 1) or (x!=0 and -1),
+        input_state = np.apply_along_axis(lambda x: int((x==me and 1) or (x!=0 and -1)),
                                           1, board_state.reshape((64, 1))).reshape((64,1))
         out = self.policy_net.getOutput(input_state)
 

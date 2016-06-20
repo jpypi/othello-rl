@@ -14,6 +14,7 @@ for e in range(n_epochs):
     print("Epoch: %d"%e)
 
     player.prepForNewGame()
+    player_gameplay_history = []
 
     for g in range(match_size):
         print("Game: %d"%g)
@@ -28,13 +29,19 @@ for e in range(n_epochs):
         final_score = list(g.getScore().items())
         final_score.sort()
         ttl = sum(map(lambda x: x[1], final_score))
+        print(ttl)
 
         # Only deal with 1 of the players (The one we're updating the
         # weights for)
         player_score = final_score[0][1]/ttl
         player.wins += player_score > 0.5
-        player.updateWeights(player_score)
+        print(player_score)
+        player_gameplay_history.append((player.play_history, player_score))
 
     player_wins.append(player.wins)
+    for game, score in player_gameplay_history:
+        player.play_history = game
+        player.updateWeights(score)
+
 
 pprint(player_wins)

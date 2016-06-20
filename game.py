@@ -15,13 +15,16 @@ class Game:
         return self.board.getScore()
 
     def run(self):
-        while self.board.getRemainingMoves() > 0:
+        n_passed = 0
+        # Run until both players have passed
+        while n_passed < 2:
+            n_passed = 0
             for i, player in enumerate(self.players):
                 # Pass the player a function it can use to make a move
                 # i*2-1 rescales index as if it were an interval
                 # (0, 1) -> (-1, 1)
                 did_move = player.play(lambda r,c: self.board.updateBoard(i*2-1, r, c),
                                    self.board.getState(), i*2-1)
-                self.board.printBoard()
+                #self.board.printBoard()
                 if not did_move:
-                    print("Someone is stuck")
+                    n_passed += 1

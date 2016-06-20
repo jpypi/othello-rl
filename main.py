@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from pprint import pprint
 
+import numpy as np
+
 from game import Game
 from players import RLPlayer
 
@@ -14,6 +16,8 @@ for e in range(n_epochs):
     print("Epoch: %d"%e)
 
     player.prepForNewGame()
+    # Anneal the exploration rate
+    player.epsilon = np.exp(0.04*(-e+11))+0.2
     player_gameplay_history = []
 
     for g in range(match_size):

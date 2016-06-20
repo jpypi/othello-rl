@@ -11,7 +11,15 @@ for p in players:
 
 g.run()
 
-g.getScore()
+final_score = list(g.getScore().items())
+final_score.sort()
+print(final_score)
+ttl = sum(map(lambda x: x[1], final_score))
+print(ttl)
+
+for i, p in enumerate(players):
+    print(final_score[i][1]/ttl)
+    p.updateWeights(final_score[i][1]/ttl)
 
 
 #import pygame
@@ -24,3 +32,7 @@ g.getScore()
 #         #player = game.play_game(1 - player)
 # finally:
 #     pygame.quit()
+
+
+# TODO:
+#- Pass (no available moves)

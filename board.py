@@ -12,7 +12,7 @@ class Board(object):
     WHITE = -1
 
     def __init__(self):
-        self.board = np.array([ [0]*8 ] * 8, dtype=int)
+        self.board = np.zeros((8,8), int)
         self.board[3][3] = Board.BLACK
         self.board[4][4] = Board.BLACK
         self.board[4][3] = Board.WHITE
@@ -20,9 +20,6 @@ class Board(object):
 
         self.remaining_squares = 8*8 - 4
         self.score = {Board.BLACK: 2, Board.WHITE: 2}
-
-    def getRemainingMoves(self):
-        return self.remaining_squares
 
     def getScore(self):
         return self.score
@@ -52,8 +49,6 @@ class Board(object):
         """
         result = self.isValidMove(tile, row, col)
         if result:
-            print("Things that will become %d: %d"%(tile, len(result)))
-
             # Flip the disks
             self.board[row][col] = tile
             for row in result:

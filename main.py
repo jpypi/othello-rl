@@ -1,38 +1,38 @@
 #!/usr/bin/env python3
+from pprint import pprint
 
 from game import Game
 from players import RLPlayer
 
-
-g = Game()
 players = [RLPlayer(), RLPlayer()]
-for p in players:
-    g.addPlayer(p)
 
-g.run()
+match_size = 10
+n_epochs = 100
 
-final_score = list(g.getScore().items())
-final_score.sort()
-print(final_score)
-ttl = sum(map(lambda x: x[1], final_score))
-print(ttl)
+player_wins = []
+for e in range(n_epochs):
+    print("Epoch: %d"%e)
 
-for i, p in enumerate(players):
-    print(final_score[i][1]/ttl)
-    p.updateWeights(final_score[i][1]/ttl)
+    for p in players:
+        p.prepForNewGame()
 
+    for g in range(match_size):
+        print("Game: %d"%g)
+        # Initialize a new game
+        g = Game()
+        for p in players:
+            g.addPlayer(p)
+        g.run()
 
-#import pygame
-#import board
-#game = othello()
-#player = game.menu.show_menu("Choose Who Begins:")
-# try:
-#     while True:
-#         board.drawSample()
-#         #player = game.play_game(1 - player)
-# finally:
-#     pygame.quit()
+        final_score = list(g.getScore().items())
+        final_score.sort()
+        ttl = sum(map(lambda x: x[1], final_score))
 
+        for i, p in enumerate(players):
+            if final_score[i][1]/ttl > 0.5:
+                p.wins += 1
+            p.updateWeights(final_score[i][1]/ttl)
 
-# TODO:
-#- Pass (no available moves)
+    player_wins.append(tuple(map(lambda x: x.wins, players)))
+
+pprint(player_wins)

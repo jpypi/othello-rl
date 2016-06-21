@@ -1,13 +1,12 @@
 import numpy as np
 from reinforce import Player
 
-import math
-#from termcolor import colored
 from colorama import Fore, Back, Style
 from colorama import init
 init(autoreset=True)
 
 board = None
+
 
 def getRow(row):
     ret = ""
@@ -15,18 +14,20 @@ def getRow(row):
         ret += getItem(i)
     return ret
 
+
 def getItem(item):
-    if item == 1 :
+    if item == 1:
         return Fore.WHITE + "|" + Fore.BLACK + "O"
-    elif  item == 0 :
+    elif item == 0:
         return Fore.WHITE + "| "
-    else :
+    else:
         return Fore.WHITE + "|" + Fore.WHITE + "O"
 
+
 class Board(object):
-    #player colors
-    BLACK = 1 #player 1
-    WHITE = -1 #player 2
+    # player colors
+    BLACK = 1  # player 1
+    WHITE = -1  # player 2
 
     def __init__(self, size=8):
         size = int(size)
@@ -41,7 +42,7 @@ class Board(object):
         Load board with init conditions
         And sync virtual board
         """
-        self.board = np.array([ [0]*self.size ] * self.size, dtype=int)
+        self.board = np.array([[0]*self.size] * self.size, dtype=int)
         mL = int(self.board.shape[0]/2 - 1)
         mR = int(self.board.shape[0]/2)
         self.board[mL][mL] = 1
@@ -75,6 +76,7 @@ class Board(object):
 
     def getBoard(self):
         return self.board
+
     def validateBoard(self, t='live'):
         '''
         Determines if players can still make moves.
@@ -88,13 +90,13 @@ class Board(object):
             bOwn = self.getOwnership(self.BLACK)
             if wOwn > bOwn:
                 print("White wins with", wOwn, "territory to black's", bOwn, ".")
-                return self.WHITE 
+                return self.WHITE
             else:
                 print("Black wins with", bOwn, "territory to white's", wOwn, ".")
-                return self.BLACK 
+                return self.BLACK
 
         nt = self.nextTurn if t == 'live' else self.virtualNextTurn
-        if not self.canMove(t, nt): 
+        if not self.canMove(t, nt):
             if nt == self.BLACK:
                 print("Black cannot move, turn passed.")
                 if t == 'live':
@@ -107,16 +109,15 @@ class Board(object):
                     self.nextTurn = self.BLACK
                 else:
                     self.virtualNextTurn = self.BLACK
-        return False 
- 
+        return False
 
     def isGameOver(self, t):
-        for x  in range(self.size):
+        for x in range(self.size):
             for y in range(self.size):
                 valid = self.isValidMove(t, self.BLACK, x, y) or self.isValidMove(t, self.WHITE, x, y)
                 if valid:
                     return False
-        return True 
+        return True
 
     def canMove(self, t, color):
         for x in range(self.size):
@@ -125,7 +126,7 @@ class Board(object):
                 if valid:
                     return True
         return False
-    
+
     def updateBoard(self, t, tile, row, col):
         """
         @param string t
@@ -179,14 +180,14 @@ class Board(object):
         board = self.board if t == 'live' else self.virtualBoard
 
         print(Back.GREEN +              "\t      BOARD      ")
-        
-        # Print column titles 
+
+        # Print column titles
         head = Back.GREEN + Fore.WHITE + "\t "
         for i in range(self.board.shape[0]):
             head += '|' + str(i)
         print(head)
-      
-        # Print rows 
+
+        # Print rows
         for i in range(self.board.shape[0]):
             print(Back.GREEN + Fore.WHITE + "\t" + str(i) + getRow(board[i]))
         print(Style.RESET_ALL)
@@ -197,7 +198,7 @@ class Board(object):
         """
         Returns True if the coordinates are located on the board.
         """
-        return x >= 0 and x < self.board.shape[0] and y >= 0 and y < self.board.shape[0] 
+        return x >= 0 and x < self.board.shape[0] and y >= 0 and y < self.board.shape[0]
 
     def isValidMove(self, t, tile, xstart, ystart):
         """
@@ -223,8 +224,8 @@ class Board(object):
         # loop through all directions around flipped tile
         for xdirection, ydirection in [[0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1]]:
             x, y = xstart, ystart
-            x += xdirection # first step in the direction
-            y += ydirection # first step in the direction
+            x += xdirection  # first step in the direction
+            y += ydirection  # first step in the direction
             if self.isOnBoard(x, y) and board[x][y] == otherTile:
                 # There is a piece belonging to the other player next to our piece.
                 x += xdirection
@@ -234,7 +235,7 @@ class Board(object):
                 while board[x][y] == otherTile:
                     x += xdirection
                     y += ydirection
-                    if not self.isOnBoard(x, y): # break out of while loop, then continue in for loop
+                    if not self.isOnBoard(x, y):  # break out of while loop, then continue in for loop
                         break
                 if not self.isOnBoard(x, y):
                     continue
@@ -247,8 +248,8 @@ class Board(object):
                             break
                         tilesToFlip.append([x, y])
 
-        board[xstart][ystart] = 0 # restore the empty space
-        if len(tilesToFlip) == 0: # If no tiles were flipped, this is not a valid move.
+        board[xstart][ystart] = 0  # restore the empty space
+        if len(tilesToFlip) == 0:  # If no tiles were flipped, this is not a valid move.
             return False
         else:
             return tilesToFlip
@@ -257,7 +258,7 @@ class Board(object):
 def processUserTurn(color):
     success = False
     try:
-        while not success: 
+        while not success:
             move = input('Move coords (q to quit): ')
             if 'q' in move:
                 quit()
@@ -266,7 +267,7 @@ def processUserTurn(color):
                 int(move.split(',')[1])
 
             if board.updateBoard('live',  color, int(move.split(',')[0]), int(move.split(',')[1])):
-                success = True 
+                success = True
             else:
                 print('Invalid move')
     except ValueError:
@@ -285,15 +286,16 @@ if __name__ == "__main__":
     player_A = Player(board, board.WHITE)
     player_B = Player(board, board.BLACK)
 
-    iterations = 500
+    iterations = 1000
     # Training - no board print
     for i in range(iterations):
         if board.nextTurn == board.BLACK:
-            player_B.takeTurn() 
+            player_B.takeTurn()
         else:
             player_A.takeTurn()
-        
-        v = board.validateBoard() 
+
+        v = board.validateBoard()
+
         while not bool(v):
             turn = board.nextTurn
             if turn == board.BLACK:
@@ -306,24 +308,28 @@ if __name__ == "__main__":
         else:
             whiteWins += 1
         game += 1
-    
-        player_A.explore = 1# - game/iterations
-        player_B.explore = 1 - game/iterations 
-        board.newGame() 
+
+        # Adjust exploration - reduces random choices as game number
+        # approaches iterations
+        player_A.explore = 1 # - game/iterations
+        player_B.explore = 1 - game/iterations
+        board.newGame()
     print("White won", whiteWins, "games.")
     print("Black won", blackWins, "games.")
+
+
+    player_B.saveWeights("weights")
     quit()
 
     if board.nextTurn == board.BLACK:
         print("Black's turn")
 #        processUserTurn(board.BLACK)
-        player_B.takeTurn() 
+        player_B.takeTurn()
     else:
         print("White's turn")
         player_A.takeTurn()
-   
- 
-    # Show play    
+
+    # Show play
     board.printBoard()
 
     while board.validateBoard():

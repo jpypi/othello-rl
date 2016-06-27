@@ -14,7 +14,7 @@ class Game:
     def getScore(self):
         return self.board.getScore()
 
-    def run(self):
+    def run(self, show_board = False):
         n_passed = 0
         # Run until both players have passed
         while n_passed < 2:
@@ -28,7 +28,8 @@ class Game:
                 did_move = player[0].play(lambda r,c: self.board.updateBoard(pid,r,c),
                                    self.board.getState(), pid, player[1])
 
-                #self.board.printBoard()
+                if show_board:
+                    self.board.printBoard()
 
                 if not did_move:
                     n_passed += 1

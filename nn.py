@@ -84,6 +84,13 @@ class NN:
         return outputs[-1]
 
 
+def relu(x):
+    return np.multiply(x > 0, x)
+
+def drelu(x):
+    return np.float64(x > 0)
+
+
 def softmax(x):
     e = np.exp(x)
     return e/np.sum(e)
@@ -93,11 +100,15 @@ def activation(x):
     #return expit(x)
     ##return 1.7159 * math.tanh(2/3*x)
     #print(x)
+
     return np.tanh(x)#list(map(math.tanh, x))
+    #return np.multiply(x > 0, x)
 
 
 def dactivation(x):
     #v = expit(x)
     #return v*(1-v)
     #return 1 - math.tanh(x)**2
+
     return 1 - np.tanh(x)**2#list(map(lambda y: 1 - math.tanh(y)**2, x))
+    #return np.float64(x > 0)

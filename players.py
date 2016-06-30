@@ -10,16 +10,13 @@ class RLPlayer:
     def __init__(self, q_lr, discount_factor, net_lr = 0.01):
         # We ougth to use softmax in this
         self.policy_net = nn.NN([64, 128, 128, 64, 64], net_lr)
+
         # This ought to decay
         self.epsilon = 0.6
 
-        # Variables for Q learning discount reward
+        # Variables for Q learning
         self.q_lr = q_lr
         self.discount_factor = discount_factor
-
-        self.prepForNewGame()
-
-    def prepForNewGame(self):
         self.play_history = []
         self.wins = 0
 
@@ -48,9 +45,7 @@ class RLPlayer:
             # Sort the possible moves lowest to highest desire
             positions = [(v,i) for i,v in enumerate(out)]
             positions.sort(key = lambda x: x[0], reverse = True)
-            #scalar_play_point = np.argmax(out)
 
-            #print(positions)
             while not made_move and positions:
                 # Grab next desired move point
                 scalar_play_point = positions.pop()[1]
@@ -68,31 +63,44 @@ class RLPlayer:
         return True
 
     def updateWeights(self, final_score):
-        #for i, (state, action) in enumerate(self.play_history):
-        #    self.policy_net.backProp(state, final_score * OneHot(action, 64))
-
         i = 0
         state, action = self.play_history[i]
         q = self.policy_net.getOutput(state)
-        targets = []
-        while i+1 < len(self.play_history):
+        n_play_history = len(self.play_history)
+        while i < n_play_history:
             i += 1
-            state_, action_ = self.play_history[i]
-            q_ = self.policy_net.getOutput(state_)
 
-            r = final_score if i+1 == len(self.play_history) else 0
-            target = np.zeros(64)
-            target[action] = q[action] + self.q_lr * (r + self.discount_factor * np.max(q_) - q[action])
-            targets.append(target)
-            action, q = action_, q_
+            # Last state-action is win/lose which should just be the final score
+            if i == n_play_history:
+                #q[action] += self.q_lr * (final_score - q[action])
+                q[action] = final_score
 
-        target = np.zeros(64)
-        target[self.play_history[-1][1]] = final_score
-        targets.append(target)
+            else:
+                state_, action_ = self.play_history[i]
+                q_ = self.policy_net.getOutput(state_)
+                #q[action] += self.q_lr * (self.discount_factor * np.max(q_) - q[action])
+                q[action] += self.discount_factor * np.max(q_)
 
-        for i in range(len(play_history)-1, -1, -1)
-            t = self.policy_net.mkVec(targets[i])
-            self.policy_net.backProp(state, t)
+            self.policy_net.backProp(state, self.policy_net.mkVec(q))
+
+            if i != n_play_history:
+                action, q = action_, q_
+
+#        print(len(self.play_history))
+#        for i in range(len(self.play_history)-1, -1, -1):
+#            print(i)
+#            t = self.policy_net.mkVec(targets[i])
+#            self.policy_net.backProp(state, t)
+
+
+class HumanPlayer:
+    def play(self, place_func, board_state, me, _):
+        try:
+            pos = map(int, map(str.strip, input().split(" ")))
+            place_func(*pos)
+            return True
+        except ValueError:
+            return False
 
 
 def OneHot(index, dim):
